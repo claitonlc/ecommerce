@@ -22,14 +22,16 @@ class Model {
 			case "set":
 				return $this->values[$fieldName] = $args[0];
 				break;
-			
-			default:
-				# code...
-				break;
 		}
 	}
 
+	public function setData($data = array())
+	{
 
+		foreach ($data as $key => $value) {
+			$this->{"set".$key}($value);
+		}
+	}
 }
 
 ?>

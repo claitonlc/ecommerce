@@ -29,7 +29,7 @@ class User extends Model {
 
 			$user = new User();
 
-			$user->setiduser($data["iduser"]);
+			$user->setiduser($data);
 
 			var_dump($user);
 			exit;
