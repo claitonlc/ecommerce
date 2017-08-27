@@ -1,5 +1,7 @@
 <?php 
 
+session_start();
+
 require_once("vendor/autoload.php");
 
 use \Slim\Slim;
@@ -13,18 +15,14 @@ $app->config('debug', true);
 
 $app->get('/', function() {
     
-	//$sql = new Hcode\DB\Sql();
-
-	//$results = $sql->select("SELECT * FROM tb_users");
-
-	//echo json_encode($results);
-
 	$page = new Page();
 
 	$page->setTpl("index");
 });
 
 $app->get('/admin', function() {
+
+	User::verifyLogin();
     
 	$page = new PageAdmin();
 
@@ -46,6 +44,14 @@ $app->post('/admin/login', function() {
     User::login($_POST["login"], $_POST["password"]);
 
     header("Location: /admin");
+    exit;	
+});
+
+$app->get('/admin/logout', function() {
+    
+    User::logout();
+
+    header("Location: /admin/login");
     exit;	
 });
 
