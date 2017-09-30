@@ -101,6 +101,7 @@ class Cart extends Model {
             ':idproduct'=>$product->getidproduct()
         ]);
 
+        $this->getCalculateTotal();
 	}
 
 	public function removeProduct(Product $product, $all = false){
@@ -116,7 +117,10 @@ class Cart extends Model {
                 ':idproduct'=>$product->getidproduct()
             ]);
         }
+
         $this->getCalculateTotal();
+
+       
     }
 
 	
@@ -167,6 +171,8 @@ class Cart extends Model {
 
 			if($totals['vllength'] < 16) $totals['vllength'] = 16;
 
+			if($totals['vlwidth'] < 11) $totals['vlwidth'] = 11;
+
 			$qs = http_build_query([
 				'nCdEmpresa'=>'',
 				'sDsSenha'=>'',
@@ -186,9 +192,10 @@ class Cart extends Model {
 
 			$xml = simplexml_load_file("http://ws.correios.com.br/calculador/CalcPrecoPrazo.asmx/CalcPrecoPrazo?".$qs);
 
-			echo json_encode($xml);
-			exit;
-			$result = $xml->Servicos->cServicos;
+			//echo json_encode($xml);
+		    //exit;
+
+			$result = $xml->Servicos->cServico;
 
 			if($result->MsgErro !=''){
 
@@ -234,7 +241,32 @@ class Cart extends Model {
 
 	public static function clearMsgError(){
 
-		$_SESSION[Cart::SESSION_ERROR] = NULL;
+		$_SESSION[Cart::SESSION_ERROR] = NULL; //limpar sessão igualando a nulo
+	}
+
+	public function updateFreight(){
+
+		if ($this->getdeszipcode() != ''){
+
+			$this->SetFreight($this->getdeszipcode());
+		}
+	}
+	public function getValues(){
+
+		$this->getCalculateTotal();
+		
+		return parent::getValues();
+
+	}
+
+	public function getCalculateTotal(){
+		
+		 $this->updateFreight();
+
+		$totals = $this->getProductsTotals();
+
+		$this->setvlsubtotal($totals['vlprice']);
+		$this->setvltotal($totals['vlprice'] + $this->getvlfreight());
 	}
 }
  ?>
